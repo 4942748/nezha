@@ -213,34 +213,12 @@ install_agent() {
 
     echo -e "> 安装监控Agent"
 
-    echo -e "正在获取监控Agent版本号"
-
-    local version=$(curl -m 10 -sL "https://api.github.com/repos/naiba/nezha/releases/latest" | grep "tag_name" | head -n 1 | awk -F ":" '{print $2}' | sed 's/\"//g;s/,//g;s/ //g')
-    if [ ! -n "$version" ]; then
-        version=$(curl -m 10 -sL "https://fastly.jsdelivr.net/gh/naiba/nezha/" | grep "option\.value" | awk -F "'" '{print $2}' | sed 's/naiba\/nezha@/v/g')
-    fi
-    if [ ! -n "$version" ]; then
-        version=$(curl -m 10 -sL "https://gcore.jsdelivr.net/gh/naiba/nezha/" | grep "option\.value" | awk -F "'" '{print $2}' | sed 's/naiba\/nezha@/v/g')
-    fi
-
-    if [ ! -n "$version" ]; then
-        echo -e "获取版本号失败，请检查本机能否链接 https://api.github.com/repos/naiba/nezha/releases/latest"
-        return 0
-    else
-        echo -e "当前最新版本为: ${version}"
-    fi
-
+    
     # 哪吒监控文件夹
     mkdir -p $NZ_AGENT_PATH
     chmod 777 -R $NZ_AGENT_PATH
 
-    echo -e "正在下载监控端"
-    wget -t 2 -T 10 -O nezha-agent_linux_${os_arch}.zip https://${GITHUB_URL}/naiba/nezha/releases/download/${version}/nezha-agent_linux_${os_arch}.zip >/dev/null 2>&1
-    if [[ $? != 0 ]]; then
-        echo -e "${red}Release 下载失败，请检查本机能否连接 ${GITHUB_URL}${plain}"
-        return 0
-    fi
-
+    
     unzip -qo nezha-agent_linux_${os_arch}.zip &&
         mv nezha-agent $NZ_AGENT_PATH &&
         rm -rf nezha-agent_linux_${os_arch}.zip README.md
